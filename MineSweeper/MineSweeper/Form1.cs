@@ -334,7 +334,7 @@ namespace MineSweeper
             numFoundX = false;
             numFoundY = false;
 
-            while (numFoundX != true && im > 0)
+            while (numFoundX != true && im >= 0)
             {
 
                 while (numFoundY != true && jp < btn.GetLength(1))
@@ -389,7 +389,7 @@ namespace MineSweeper
                 jm = y - 1;
                 numFoundY = false;
                 im--;
-                if (im < btn.GetLength(0) && btn[im, jp].Name != "0")
+                if (im >= 0 && btn[im, jp].Name != "0")
                 {
                     layerX++;
                     if (layerX == 2)
