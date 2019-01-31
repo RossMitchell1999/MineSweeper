@@ -12,10 +12,12 @@ namespace MineSweeper
 {
     public partial class MineSweeper : Form
     {
-        Button[,] btn = new Button[10, 10];
+        public Button[,] btn = new Button[10, 10];
         Random r = new Random();
+
         public MineSweeper()
         {
+
             InitializeComponent();
             for (int m = 0; m < btn.GetLength(0); m++)         // Loop for x
             {
@@ -253,9 +255,9 @@ namespace MineSweeper
             }
         }
 
-        void uncoverZero(int x, int y)
+        void uncoverZero(int x, int y, int layer)
         {
-
+            
             bool numFoundX = false;
             bool numFoundY = false;
             int ip = x;
@@ -399,28 +401,46 @@ namespace MineSweeper
                 }
             }
         }
+            
+
+        
+        
+
+
+
 
         void btnEvent_Click(object sender, EventArgs e)
         {
             if (((Button)sender).Name == "Bomb")  // Is clicked one blue?
             {                                                     // YES
                 ((Button)sender).BackColor = Color.Red;    // Change colour
-                btn[r.Next(btn.GetLength(0)), r.Next(btn.GetLength(1))].Name = "Bomb"; // Pick new mole
-                                                                                       // Output message
+                                                           //btn[r.Next(btn.GetLength(0)), r.Next(btn.GetLength(1))].Name = "Bomb"; // Pick new mole
+                                                           // Output message
             }
-            else if (((Button)sender).Name == "0")
+            else
             {
-                int x = ((Button)sender).Left / 25;
-                int y = ((Button)sender).Top / 25;
-                uncoverZero(x, y);
-                //Console.WriteLine("Missed!");
-            } else { 
-                ((Button)sender).BackColor = Color.Green;
-                ((Button)sender).Text = ((Button)sender).Name;
+                //Console.WriteLine("Missed!");                         // Output message
+
+                if (((Button)sender).Name == "0")
+                {
+                    int x = (((Button)sender).Left) / 25;
+                    int y = (((Button)sender).Top) / 25;
+                    Console.WriteLine("X: " + x + ", Y: " + y);
+                    //int[] index = Array.IndexOf(Button, (Button)sender);
+                    uncoverZero(x, y, 0);
+                }
+                else
+                {
+                    ((Button)sender).BackColor = Color.Green;
+                    ((Button)sender).Text = ((Button)sender).Name;
+                }
 
                 //Console.WriteLine(((Button)sender).Text);    // SAME handler as before
             }
         }
+
+
+
         private void MineSweeper_Load(object sender, EventArgs e)  //REQUIRED
         {
         }
