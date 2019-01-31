@@ -43,15 +43,14 @@ void uncoverZero(int x, int y)
                         btn[ip, jm].BackColor = Color.Green;
                         btn[ip, jm].Text = btn[ip, jm].Name;
 
-                        jm--;
-                        if (jm >= 0 && btn[ip, jm].Name != "0")
+                        
+                        if (btn[ip, jm].Name != "0")
                         {
-                            layerY++;
-                            if (layerY == 2)
-                            {
+                            
                                 numFoundY = true;
-                            }
+                            
                         }
+                        jm--;
                     }
                     else
                     {
@@ -113,15 +112,13 @@ void uncoverZero(int x, int y)
                         btn[im, jm].BackColor = Color.Green;
                         btn[im, jm].Text = btn[im, jm].Name;
 
-                        jm--;
-                        if (jm >= 0 && btn[im, jm].Name != "0")
+                        
+                        if (btn[im, jm].Name != "0")
                         {
-                            layerY++;
-                            if (layerY == 2)
-                            {
-                                numFoundY = true;
-                            }
+                            numFoundY = true;
+                            
                         }
+                        jm--;
                     }
                     else
                     {
@@ -143,8 +140,7 @@ void uncoverZero(int x, int y)
                     }
                 }
             }
-        }
-        
+        }        
         
 Add following to event handler:
 else if (((Button)sender).Name == "0")
