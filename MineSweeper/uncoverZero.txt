@@ -1,0 +1,161 @@
+void uncoverZero(int x, int y)
+        {
+
+            bool numFoundX = false;
+            bool numFoundY = false;
+            int ip = x;
+            int jp = y;
+            int im = x;
+            int jm = y - 1;
+            int layerX = 0;
+            int layerY = 0;
+            while (numFoundX != true && ip < btn.GetLength(0))
+            {
+
+                while (numFoundY != true && jp < btn.GetLength(1))
+                {
+                    if (btn[ip, jp].BackColor == Color.White)
+                    {
+                        btn[ip, jp].BackColor = Color.Green;
+                        btn[ip, jp].Text = btn[ip, jp].Name;
+
+                        jp++;
+                        if (jp < btn.GetLength(1) && btn[ip, jp].Name != "0")
+                        {
+                            layerY++;
+                            if (layerY == 2)
+                            {
+                                numFoundY = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        numFoundY = true;
+                    }
+                }
+                numFoundY = false;
+                layerY = 0;
+                while (numFoundY != true && jm >= 0)
+                {
+                    if (btn[ip, jm].BackColor == Color.White)
+                    {
+                        btn[ip, jm].BackColor = Color.Green;
+                        btn[ip, jm].Text = btn[ip, jm].Name;
+
+                        jm--;
+                        if (jm >= 0 && btn[ip, jm].Name != "0")
+                        {
+                            layerY++;
+                            if (layerY == 2)
+                            {
+                                numFoundY = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        numFoundY = true;
+                    }
+                }
+
+
+                jp = y;
+                jm = y - 1;
+                numFoundY = false;
+                ip++;
+                if (ip < btn.GetLength(0) && btn[ip, jp].Name != "0")
+                {
+                    layerX++;
+                    if (layerX == 2)
+                    {
+                        numFoundX = true;
+                    }
+                }
+            }
+
+            layerX = 0;
+            layerY = 0;
+            numFoundX = false;
+            numFoundY = false;
+
+            while (numFoundX != true && im >= 0)
+            {
+
+                while (numFoundY != true && jp < btn.GetLength(1))
+                {
+                    if (btn[im, jp].BackColor == Color.White)
+                    {
+                        btn[im, jp].BackColor = Color.Green;
+                        btn[im, jp].Text = btn[im, jp].Name;
+
+                        jp++;
+                        if (jp < btn.GetLength(1) && btn[im, jp].Name != "0")
+                        {
+                            layerY++;
+                            if (layerY == 2)
+                            {
+                                numFoundY = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        numFoundY = true;
+                    }
+                }
+                numFoundY = false;
+                layerY = 0;
+                while (numFoundY != true && jm >= 0)
+                {
+                    if (btn[im, jm].BackColor == Color.White)
+                    {
+                        btn[im, jm].BackColor = Color.Green;
+                        btn[im, jm].Text = btn[im, jm].Name;
+
+                        jm--;
+                        if (jm >= 0 && btn[im, jm].Name != "0")
+                        {
+                            layerY++;
+                            if (layerY == 2)
+                            {
+                                numFoundY = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        numFoundY = true;
+                    }
+                }
+
+
+                jp = y;
+                jm = y - 1;
+                numFoundY = false;
+                im--;
+                if (im >= 0 && btn[im, jp].Name != "0")
+                {
+                    layerX++;
+                    if (layerX == 2)
+                    {
+                        numFoundX = true;
+                    }
+                }
+            }
+        }
+        
+        
+Add following to event handler:
+else if (((Button)sender).Name == "0")
+            {
+                int x = ((Button)sender).Left / 25;
+                int y = ((Button)sender).Top / 25;
+                uncoverZero(x, y);
+                //Console.WriteLine("Missed!");
+            } else { 
+                ((Button)sender).BackColor = Color.Green;
+                ((Button)sender).Text = ((Button)sender).Name;
+
+                //Console.WriteLine(((Button)sender).Text);    // SAME handler as before
+            }
