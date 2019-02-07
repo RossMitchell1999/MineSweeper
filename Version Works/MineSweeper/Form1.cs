@@ -33,21 +33,41 @@ namespace MineSweeper
         int bombs;
         int gameTime;
         int correctFlags;
+        int wrongFlags;
+        int size;
+
+        SoundPlayer se = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-memories.wav");
+        SoundPlayer sm = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-epic.wav");
+        SoundPlayer sh = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-extremeaction.wav");
+        SoundPlayer sw = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\Victory.wav");
 
         public MineSweeper()
         {
-            runGame(10, 10);
+            size = 10;
+            bombs = 10;
+            runGame();
             SoundPlayer sp = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-memories.wav");
             sp.Play();
         }
 
-        void runGame(int size, int numBombs)
+        void runGame()
         {
+            if (size == 10)
+            {
+                se.Play();
+            }
+            else if(size == 15){
+                sm.Play();
+            }
+            else
+            {
+                sh.Play();
+            }
             InitializeComponent();
-            
-            bombs = numBombs;
+           
             gameTime = 0;
             correctFlags = 0;
+            wrongFlags = 0;
             btn = new Button[size, size];
             for (int m = 0; m < btn.GetLength(0); m++)         // Loop for x
             {
@@ -310,150 +330,6 @@ namespace MineSweeper
             }
         }
 
-        //void uncoverZero(int x, int y)
-        //{
-
-        //    bool numFoundX = false;
-        //    bool numFoundY = false;
-        //    int ip = x;
-        //    int jp = y;
-        //    int im = x;
-        //    int jm = y - 1;
-        //    int layerX = 0;
-        //    int layerY = 0;
-        //    while (numFoundX != true && ip < btn.GetLength(0))
-        //    {
-
-        //        while (numFoundY != true && jp < btn.GetLength(1))
-        //        {
-        //            if (btn[ip, jp].BackColor == Color.White)
-        //            {
-        //                btn[ip, jp].BackColor = Color.Green;
-        //                btn[ip, jp].Text = btn[ip, jp].Name;
-
-        //                jp++;
-        //                if (jp < btn.GetLength(1) && btn[ip, jp].Name != "0")
-        //                {
-        //                    layerY++;
-        //                    if (layerY == 2  || btn[ip, jp].Name == "Bomb")
-        //                    {
-        //                        numFoundY = true;
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                numFoundY = true;
-        //            }
-        //        }
-        //        numFoundY = false;
-        //        layerY = 0;
-        //        while (numFoundY != true && jm >= 0)
-        //        {
-        //            if (btn[ip, jm].BackColor == Color.White)
-        //            {
-        //                btn[ip, jm].BackColor = Color.ForestGreen;
-        //                btn[ip, jm].Text = btn[ip, jm].Name;
-
-
-        //                if (btn[ip, jm].Name != "0")
-        //                {
-
-        //                    numFoundY = true;
-
-        //                }
-        //                jm--;
-        //            }
-        //            else
-        //            {
-        //                numFoundY = true;
-        //            }
-        //        }
-
-
-        //        jp = y;
-        //        jm = y - 1;
-        //        numFoundY = false;
-        //        ip++;
-        //        if (ip < btn.GetLength(0) && btn[ip, jp].Name != "0")
-        //        {
-        //            layerX++;
-        //            if (layerX == 2)
-        //            {
-        //                numFoundX = true;
-        //            }
-        //        }
-        //    }
-
-        //    layerX = 0;
-        //    layerY = 0;
-        //    numFoundX = false;
-        //    numFoundY = false;
-
-        //    while (numFoundX != true && im >= 0)
-        //    {
-
-        //        while (numFoundY != true && jp < btn.GetLength(1))
-        //        {
-        //            if (btn[im, jp].BackColor == Color.White)
-        //            {
-        //                btn[im, jp].BackColor = Color.Green;
-        //                btn[im, jp].Text = btn[im, jp].Name;
-
-        //                jp++;
-        //                if (jp < btn.GetLength(1) && btn[im, jp].Name != "0")
-        //                {
-        //                    layerY++;
-        //                    if (layerY == 2 || btn[im, jp].Name == "Bomb")
-        //                    {
-        //                        numFoundY = true;
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                numFoundY = true;
-        //            }
-        //        }
-        //        numFoundY = false;
-        //        layerY = 0;
-        //        while (numFoundY != true && jm >= 0)
-        //        {
-        //            if (btn[im, jm].BackColor == Color.White)
-        //            {
-        //                btn[im, jm].BackColor = Color.Green;
-        //                btn[im, jm].Text = btn[im, jm].Name;
-
-
-        //                if (btn[im, jm].Name != "0")
-        //                {
-        //                    numFoundY = true;
-
-        //                }
-        //                jm--;
-        //            }
-        //            else
-        //            {
-        //                numFoundY = true;
-        //            }
-        //        }
-
-
-        //        jp = y;
-        //        jm = y - 1;
-        //        numFoundY = false;
-        //        im--;
-        //        if (im >= 0 && btn[im, jp].Name != "0")
-        //        {
-        //            layerX++;
-        //            if (layerX == 2)
-        //            {
-        //                numFoundX = true;
-        //            }
-        //        }
-        //    }
-        //}
-
         int uncoverZero(int x, int y, int layer)
         {
             if ((x < 0 || x >= btn.GetLength(0) || y < 0 || y >= btn.GetLength(1)) || btn[x, y].BackColor == Color.ForestGreen)
@@ -476,12 +352,16 @@ namespace MineSweeper
         void btnEvent_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right) {
-                if (((Button)sender).BackgroundImage == null) { 
+                if (((Button)sender).BackgroundImage == null && ((Button)sender).BackColor == Color.White) { 
                     //((Button)sender).BackColor = Color.Orange;
                     ((Button)sender).BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "flag.png");
                     if (((Button)sender).Name == "Bomb")
                     {
                         correctFlags++;
+                    }
+                    else
+                    {
+                        wrongFlags++;
                     }
 
                 }
@@ -492,6 +372,10 @@ namespace MineSweeper
                     if (((Button)sender).Name == "Bomb")
                     {
                         correctFlags--;
+                    }
+                    else
+                    {
+                        wrongFlags--;
                     }
                 }
             }
@@ -512,10 +396,13 @@ namespace MineSweeper
                             }
                         }
                     }
+                    SoundPlayer sl = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\Explosion.wav");
+                    sl.Play();
                     timer1.Stop();
                     MessageBox.Show("Game Over!" + Environment.NewLine + "You survived for " + Convert.ToString(gameTime) + " seconds", "Game Over!");
-                    //Controls.Clear();
-                    //runGame();
+
+                    Controls.Clear();
+                    runGame();
 
                 }
                 else if (((Button)sender).Name == "0")
@@ -533,10 +420,12 @@ namespace MineSweeper
                 }
             }
 
-            if (correctFlags == bombs)
+            if (correctFlags == bombs && wrongFlags == 0)
             {
+                sw.Play();
                 timer1.Stop();
                 MessageBox.Show("You won!" + Environment.NewLine + "You found all the bombs in " + Convert.ToString(gameTime) + " seconds!", "Winner!");
+                
             }
         }
         private void MineSweeper_Load(object sender, EventArgs e)  //REQUIRED
@@ -563,27 +452,41 @@ namespace MineSweeper
         {
             timer1.Stop();
             Controls.Clear();
-            runGame(10, 10);
+            size = 10;
+            bombs = 10;
+            se.Play();
+            runGame();
         }
 
         private void mediumGameMenuItem_Click(object sender, EventArgs e)
         {
             timer1.Stop();
             Controls.Clear();
-            runGame(15, 20);
+            size = 15;
+            bombs = 40;
+            sm.Play();
+            runGame();
         }
 
         private void hardGameMenuItem_Click(object sender, EventArgs e)
         {
             timer1.Stop();
             Controls.Clear();
-            runGame(25, 50);
+            size = 25;
+            bombs = 80;
+            sh.Play();
+            runGame();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             gameTime++;
             timer.Text = "Time elapsed: " + Convert.ToString(gameTime) + " sec";
+        }
+
+        private void OptionsDropDown_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

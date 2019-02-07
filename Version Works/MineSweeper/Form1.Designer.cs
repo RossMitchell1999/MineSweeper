@@ -64,6 +64,7 @@
             this.OptionsDropDown.Name = "OptionsDropDown";
             this.OptionsDropDown.Size = new System.Drawing.Size(61, 20);
             this.OptionsDropDown.Text = "Options";
+            this.OptionsDropDown.Click += new System.EventHandler(this.OptionsDropDown_Click);
             // 
             // NewGameDropDown
             // 
@@ -72,7 +73,7 @@
             this.mediumGameMenuItem,
             this.hardGameMenuItem});
             this.NewGameDropDown.Name = "NewGameDropDown";
-            this.NewGameDropDown.Size = new System.Drawing.Size(132, 22);
+            this.NewGameDropDown.Size = new System.Drawing.Size(180, 22);
             this.NewGameDropDown.Text = "New Game";
             this.NewGameDropDown.Click += new System.EventHandler(this.NewGameDropDown_Click);
             // 
@@ -100,14 +101,14 @@
             // RulesDropDown
             // 
             this.RulesDropDown.Name = "RulesDropDown";
-            this.RulesDropDown.Size = new System.Drawing.Size(132, 22);
+            this.RulesDropDown.Size = new System.Drawing.Size(180, 22);
             this.RulesDropDown.Text = "Rules";
             this.RulesDropDown.Click += new System.EventHandler(this.RulesDropDown_Click);
             // 
             // ExitDropDown
             // 
             this.ExitDropDown.Name = "ExitDropDown";
-            this.ExitDropDown.Size = new System.Drawing.Size(132, 22);
+            this.ExitDropDown.Size = new System.Drawing.Size(180, 22);
             this.ExitDropDown.Text = "Exit";
             this.ExitDropDown.Click += new System.EventHandler(this.ExitDropDown_Click);
             // 

@@ -29,3 +29,14 @@ C:\Users\pturt\Source\Repos\Minesweeper\MineSweeper\obj\Debug\MineSweeper.csproj
 C:\Users\pturt\Source\Repos\Minesweeper\MineSweeper\obj\Debug\MineSweeper.exe
 C:\Users\pturt\Source\Repos\Minesweeper\MineSweeper\obj\Debug\MineSweeper.pdb
 C:\Users\pturt\Source\Repos\Minesweeper\MineSweeper\bin\Debug\bensound-memories.wav
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\bin\Debug\bensound-memories.wav
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\obj\Debug\MineSweeper.csprojAssemblyReference.cache
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\obj\Debug\MineSweeper.MineSweeper.resources
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\obj\Debug\MineSweeper.Properties.Resources.resources
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\obj\Debug\MineSweeper.csproj.GenerateResource.cache
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\obj\Debug\MineSweeper.csproj.CoreCompileInputs.cache
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\obj\Debug\MineSweeper.exe
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\obj\Debug\MineSweeper.pdb
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\bin\Debug\MineSweeper.exe.config
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\bin\Debug\MineSweeper.exe
+C:\Users\rossmitchell\source\repos\MineSweeper\MineSweeper\bin\Debug\MineSweeper.pdb
