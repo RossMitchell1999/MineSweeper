@@ -39,6 +39,8 @@
             this.RulesDropDown = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitDropDown = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.LblTitle = new System.Windows.Forms.Label();
+            this.LblTimer = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,7 +66,6 @@
             this.OptionsDropDown.Name = "OptionsDropDown";
             this.OptionsDropDown.Size = new System.Drawing.Size(61, 20);
             this.OptionsDropDown.Text = "Options";
-            this.OptionsDropDown.Click += new System.EventHandler(this.OptionsDropDown_Click);
             // 
             // NewGameDropDown
             // 
@@ -88,14 +89,14 @@
             // 
             this.mediumGameMenuItem.Name = "mediumGameMenuItem";
             this.mediumGameMenuItem.Size = new System.Drawing.Size(265, 22);
-            this.mediumGameMenuItem.Text = "Medium (20x20 grid, several bombs)";
+            this.mediumGameMenuItem.Text = "Medium (15x15 grid, several bombs)";
             this.mediumGameMenuItem.Click += new System.EventHandler(this.mediumGameMenuItem_Click);
             // 
             // hardGameMenuItem
             // 
             this.hardGameMenuItem.Name = "hardGameMenuItem";
             this.hardGameMenuItem.Size = new System.Drawing.Size(265, 22);
-            this.hardGameMenuItem.Text = "Hard (32x32 grid, many bombs)";
+            this.hardGameMenuItem.Text = "Hard (25x25 grid, many bombs)";
             this.hardGameMenuItem.Click += new System.EventHandler(this.hardGameMenuItem_Click);
             // 
             // RulesDropDown
@@ -118,6 +119,28 @@
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // LblTitle
+            // 
+            this.LblTitle.BackColor = System.Drawing.Color.Transparent;
+            this.LblTitle.Font = new System.Drawing.Font("Comic Sans MS", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblTitle.Location = new System.Drawing.Point(5, 40);
+            this.LblTitle.Name = "LblTitle";
+            this.LblTitle.Size = new System.Drawing.Size(245, 45);
+            this.LblTitle.TabIndex = 1;
+            this.LblTitle.Text = "Bomb Finder";
+            this.LblTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // LblTimer
+            // 
+            this.LblTimer.BackColor = System.Drawing.Color.Transparent;
+            this.LblTimer.Font = new System.Drawing.Font("Comic Sans MS", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.LblTimer.Location = new System.Drawing.Point(5, 110);
+            this.LblTimer.Name = "LblTimer";
+            this.LblTimer.Size = new System.Drawing.Size(245, 30);
+            this.LblTimer.TabIndex = 2;
+            this.LblTimer.Text = "Time elasped: 0 sec";
+            this.LblTimer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // MineSweeper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -126,6 +149,8 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(854, 573);
+            this.Controls.Add(this.LblTimer);
+            this.Controls.Add(this.LblTitle);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
@@ -152,6 +177,8 @@
         private System.Windows.Forms.ToolStripMenuItem mediumGameMenuItem;
         private System.Windows.Forms.ToolStripMenuItem hardGameMenuItem;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label LblTitle;
+        private System.Windows.Forms.Label LblTimer;
     }
 }
 

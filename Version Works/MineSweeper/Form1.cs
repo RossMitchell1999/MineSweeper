@@ -9,122 +9,174 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Media;
+using System.IO;
 
 
 /**
- * Minesweeper program ('Bomb Finder') for AC22005 Assignment 1
- * Written by Ross Mitchell & Patrick Turton-Smith
- * References:
- * Bomb clip art for bomb squares & program icon from https://openclipart.org/detail/252171/black-cartoon-bomb, used under public domain
- * Flag clip art for flagged squares from https://openclipart.org/detail/255282/racing-flag-red, used under public domain
- * Background music (Memories) from https://www.bensound.com/, used under Free Creative Commons Licence
+ * Minesweeper program ('Bomb Finder') for AC22005 Assignment 1 - C# Game
+ * Written by Ross Mitchell & Patrick Turton-Smith (170012743)
  * 
+ * References:
+ * [1] Bomb clip art for bomb squares & program icon from https://openclipart.org/detail/252171/black-cartoon-bomb, used under public domain
+ * [2] Flag clip art for flagged squares from https://openclipart.org/detail/255282/racing-flag-red, used under public domain
+ * [3] Background music (Memories, Epic & Extreme Action) from https://www.bensound.com/, used under Free Creative Commons Licence
+ * [4] Explosion sound effect (on finding a bomb) from https://freesound.org/people/Iwiploppenisse/sounds/156031/, used under Creative Commons Attribution Licence
+ * [5] Victory sound effect (on winning the game) from https://freesound.org/people/FunWithSound/sounds/369252/, used under Creative Commons Noncommercial Attribution Licence
  */
 
 namespace MineSweeper
 {
     public partial class MineSweeper : Form
     {
+        // Code placed/controlled Form objects
+        Button[,] btn;  // 2D Array for grid of buttons
+        Random r = new Random(); // Random number for placement of bombs on grid
+        Label leaderboardTitle; // Label for leaderboard
+        Label[] leaderboardPlaces = new Label[5]; // Array of labels for the 5 top scorers
+        
+        // Program wide fields
+        int bombs; // Number of bombs on the grid
+        int gameTime; // Number of seconds since the current game was started
+        int correctFlags; // Number of correctly placed flags
+        int wrongFlags; // Number of incorrectly placed flags
+        int size; // Size of the grid
+        string[] leaderboardNames = new string[5]; // Array of 5 names for the leaderboard
+        int[] leaderboardTimes = new int[5]; // Array of 5 scores for the leaderboard
 
-        Button[,] btn;
-        Random r = new Random();
-        Label timer;
 
-        int bombs;
-        int gameTime;
-        int correctFlags;
-        int wrongFlags;
-        int size;
+        // SoundPlayers for the different background music/sound effects used in the game
+        SoundPlayer bckgndEasy = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-memories.wav"); // Ref.[3]
+        SoundPlayer bckgndMed = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-epic.wav"); // Ref.[3]
+        SoundPlayer bckgndHard = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-extremeaction.wav"); // Ref.[3]
+        SoundPlayer clipWin = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\Victory.wav"); // Ref.[5]
+        SoundPlayer clipLose = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\Explosion.wav"); // Ref.[4]
 
-        SoundPlayer se = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-memories.wav");
-        SoundPlayer sm = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-epic.wav");
-        SoundPlayer sh = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-extremeaction.wav");
-        SoundPlayer sw = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\Victory.wav");
 
+        // Default constructor for MineSweeper class. Default game difficulty is easy (10x10 grid, 10 bombs)
+        // Loads leaderboard from file before starting the game
         public MineSweeper()
         {
             size = 10;
             bombs = 10;
+            loadLeaderboard();
             runGame();
-            SoundPlayer sp = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\bensound-memories.wav");
-            sp.Play();
         }
+        
 
+        // Method for initialising a game of Bomb Finder. Generates the grid of buttons, randomly places a pre-determined number of bombs onto the grid and displays the previously loaded leaderboard on the form.
         void runGame()
         {
-            if (size == 10)
+            // Select correct background music for difficulty chosen
+            if (size == 10) // Difficulty easy
             {
-                se.Play();
+                bckgndEasy.Play();
             }
-            else if(size == 15){
-                sm.Play();
-            }
-            else
+            else if (size == 15) // Difficulty medium
             {
-                sh.Play();
+                bckgndMed.Play();
             }
+            else // Difficulty hard
+            {
+                bckgndHard.Play();
+            }
+
             InitializeComponent();
-           
+
+            // Reset the following game variables
             gameTime = 0;
             correctFlags = 0;
             wrongFlags = 0;
-            btn = new Button[size, size];
-            for (int m = 0; m < btn.GetLength(0); m++)         // Loop for x
+
+            // Generate and display the grid of buttons on which the game is to be played
+            btn = new Button[size, size]; // Generate correct size of 2D array for difficulty
+            for (int x = 0; x < btn.GetLength(0); x++) // Loops for x and y
             {
-                for (int n = 0; n < btn.GetLength(1); n++)     // Loop for y
+                for (int y = 0; y < btn.GetLength(1); y++)
                 {
-                    btn[m, n] = new Button();
-                    btn[m, n].FlatStyle = FlatStyle.Flat;
-                    btn[m, n].FlatAppearance.BorderSize = 1;
-                    btn[m, n].FlatAppearance.BorderColor = Color.Black;
-                    btn[m, n].SetBounds(35 * m, 25 + (35 * n), 35, 35);
-                    btn[m, n].BackColor = Color.White;
-                    btn[m, n].Font = new Font("Comic Sans MS", 12.0F, btn[m, n].Font.Style, btn[m, n].Font.Unit);
-                    btn[m, n].ForeColor = Color.White;
-                    btn[m, n].MouseDown += new MouseEventHandler(this.btnEvent_MouseDown);
-                    //btn[x, y].RightClick += new EventHandler(this.btnEvent_RightClick);
-                    Controls.Add(btn[m, n]);
+                    btn[x, y] = new Button();
+                    btn[x, y].FlatStyle = FlatStyle.Flat;
+                    btn[x, y].FlatAppearance.BorderSize = 1;
+                    btn[x, y].FlatAppearance.BorderColor = Color.Black;
+                    btn[x, y].SetBounds(255 + (35 * x), 27 + (35 * y), 35, 35);
+                    btn[x, y].BackColor = Color.White;
+                    btn[x, y].Font = new Font("Comic Sans MS", 12.0F, btn[x, y].Font.Style, btn[x, y].Font.Unit);
+                    btn[x, y].ForeColor = Color.White;
+                    btn[x, y].MouseDown += new MouseEventHandler(this.btnEvent_MouseDown);
+                    Controls.Add(btn[x, y]);
                 }
 
             }
 
-            Label title = new Label();
-            title.Name = "Title";
-            title.Text = "Bomb Finder";
-            title.Font = new Font("Comic Sans MS", 22.0F);
-            title.SetBounds((35 * size) + 20, 60, 205, 40);
-            Controls.Add(title);
+            // Generate and display leaderboard title
+            leaderboardTitle = new Label();
+            leaderboardTitle.Name = "LeaderboardTitle";
+            leaderboardTitle.Text = "Best Times";
+            leaderboardTitle.Font = new Font("Comic Sans MS", 16.0F);
+            leaderboardTitle.TextAlign = ContentAlignment.MiddleCenter;
+            leaderboardTitle.SetBounds(5, 165, 245, 35);
+            Controls.Add(leaderboardTitle);
 
-            timer = new Label();
-            timer.Name = "Timer";
-            timer.Text = "Time elapsed: 0 sec";
-            timer.Font = new Font("Comic Sans MS", 14.0F);
-            timer.SetBounds((35 * size) + 20, 130, 215, 30);
-            Controls.Add(timer);
-
-            for (int i = 0; i < bombs; i++)
+            // Generate and display each place in leaderboard
+            leaderboardPlaces[0] = createLeaderboardLabels(leaderboardTitle, 1);
+            Controls.Add(leaderboardPlaces[0]);
+            for (int i = 1; i < 5; i++)
             {
-                btn[r.Next(btn.GetLength(0)), r.Next(btn.GetLength(1))].Name = "Bomb";
+                leaderboardPlaces[i] = createLeaderboardLabels(leaderboardPlaces[i - 1], i + 1);
+                Controls.Add(leaderboardPlaces[i]);
             }
-            numbers();
-            timer1.Start();
+
+            // Randomly place bombs on grid
+            int bombsPlaced = 0;
+            int randX = 0;
+            int randY = 0;
+            while (bombsPlaced != bombs) // Repeat until there are correct number of bombs on the grid
+            {
+                randX = r.Next(btn.GetLength(0));
+                randY = r.Next(btn.GetLength(1));
+                if (btn[randX, randY].Name != "Bomb")
+                {
+                    btn[randX, randY].Name = "Bomb";
+                    bombsPlaced++;
+                }
+            }
+
+            numbers(); // Assign the appropriate numbers to rest of grid
+
+            timer1.Start(); // Start the timer for the game
         }
 
+        // Create the labels for each place on the leaderboard
+        Label createLeaderboardLabels(Label prevLbl, int number)
+        {
+            Label newLabel = new Label();
+            newLabel.Name = "Leaderboard " + Convert.ToString(number);
+            string lblTxt = String.Format(@"{0}. {1} - {2}secs", Convert.ToString(number), leaderboardNames[number - 1], Convert.ToString(leaderboardTimes[number - 1]));
+            newLabel.Text = lblTxt;
+            newLabel.Font = new Font("Comic Sans MS", 12.0F);
+            newLabel.TextAlign = ContentAlignment.MiddleLeft;
+            newLabel.AutoSize = true;
+            newLabel.Top = prevLbl.Bottom + 5;
+            newLabel.Left = prevLbl.Left;
+            return newLabel;
+        }
+
+        // Method to traverse the grid and add the numbers to each square that has bombs nearby, and setting a zero to each square that does not have any adjacent bombs 
         void numbers()
         {
             int num = 0;
             String value = "";
-            for (int x = 0; x < btn.GetLength(0); x++)         // Loop for x
+            // For every button in the grid
+            for (int x = 0; x < btn.GetLength(0); x++)
             {
-                for (int y = 0; y < btn.GetLength(1); y++)     // Loop for y
+                for (int y = 0; y < btn.GetLength(1); y++)
                 {
                     num = 0;
                     value = "";
-                    if (btn[x, y].Name != "Bomb")
+                    if (btn[x, y].Name != "Bomb") // If button is not already a bomb itself
                     {
-                        if (y == 0 || y == btn.GetLength(1) - 1 || x == btn.GetLength(0) - 1 || x == 0)
+                        if (y == 0 || y == btn.GetLength(1) - 1 || x == btn.GetLength(0) - 1 || x == 0) // If button is on one of the outer edges of the grid
                         {
-                            if (y == 0 && x == 0)
+                            if (y == 0 && x == 0) // Top left corner
                             {
                                 if (btn[x + 1, y].Name == "Bomb")
                                 {
@@ -140,7 +192,7 @@ namespace MineSweeper
                                 }
 
                             }
-                            else if (y == 0 && x == btn.GetLength(0) - 1)
+                            else if (y == 0 && x == btn.GetLength(0) - 1) // Top right corner
                             {
                                 if (btn[x - 1, y].Name == "Bomb")
                                 {
@@ -156,7 +208,7 @@ namespace MineSweeper
                                 }
 
                             }
-                            else if (x == 0 && y == btn.GetLength(1) - 1)
+                            else if (x == 0 && y == btn.GetLength(1) - 1) // Bottom left corner
                             {
                                 if (btn[x + 1, y].Name == "Bomb")
                                 {
@@ -172,7 +224,7 @@ namespace MineSweeper
                                 }
 
                             }
-                            else if (x == btn.GetLength(0) - 1 && y == btn.GetLength(1) - 1)
+                            else if (x == btn.GetLength(0) - 1 && y == btn.GetLength(1) - 1) // Bottom right corner
                             {
                                 if (btn[x - 1, y].Name == "Bomb")
                                 {
@@ -187,7 +239,7 @@ namespace MineSweeper
                                     num++;
                                 }
                             }
-                            else if (y == 0)
+                            else if (y == 0) // Left edge
                             {
                                 if (btn[x + 1, y].Name == "Bomb")
                                 {
@@ -210,7 +262,7 @@ namespace MineSweeper
                                     num++;
                                 }
                             }
-                            else if (x == 0)
+                            else if (x == 0) // Top edge
                             {
                                 if (btn[x + 1, y].Name == "Bomb")
                                 {
@@ -233,7 +285,7 @@ namespace MineSweeper
                                     num++;
                                 }
                             }
-                            else if (y == btn.GetLength(1) - 1)
+                            else if (y == btn.GetLength(1) - 1) // Right edge
                             {
                                 if (btn[x + 1, y].Name == "Bomb")
                                 {
@@ -256,7 +308,7 @@ namespace MineSweeper
                                     num++;
                                 }
                             }
-                            else if (x == btn.GetLength(0) - 1)
+                            else if (x == btn.GetLength(0) - 1) // Bottom edge
                             {
                                 if (btn[x, y - 1].Name == "Bomb")
                                 {
@@ -279,13 +331,14 @@ namespace MineSweeper
                                     num++;
                                 }
                             }
+                            // Set button name to be that of the number of bombs around it
                             value = Convert.ToString(num);
                             btn[x, y].Name = value;
-                            //btn[x, y].Text = value;
+
                             num = 0;
                             value = "";
                         }
-                        else
+                        else // Else if anywhere inside the grid (not on the outer edges)
                         {
                             if (btn[x + 1, y].Name == "Bomb")
                             {
@@ -319,9 +372,10 @@ namespace MineSweeper
                             {
                                 num++;
                             }
+                            // Set button name to be that of the number of bombs around it
                             value = Convert.ToString(num);
                             btn[x, y].Name = value;
-                            //btn[x, y].Text = value;
+
                             num = 0;
                             value = "";
                         }
@@ -329,14 +383,16 @@ namespace MineSweeper
                 }
             }
         }
-
+        
+        // Recursive method for uncovering surrounding zero squares - and an adjacent layer of numbered squares
+        // Receives the x & y coords, and layer (which records whether the method has encountered any non-zero squares) as parameters
         int uncoverZero(int x, int y, int layer)
         {
-            if ((x < 0 || x >= btn.GetLength(0) || y < 0 || y >= btn.GetLength(1)) || btn[x, y].BackColor == Color.ForestGreen)
+            if ((x < 0 || x >= btn.GetLength(0) || y < 0 || y >= btn.GetLength(1)) || btn[x, y].BackColor == Color.ForestGreen) // If coord is outside the grid, or if the button has already been uncovered
             {
                 return 0;
             }
-            else
+            else // Else button is inside the grid and has not yet been revealed
             {
                 btn[x, y].BackColor = Color.ForestGreen;
                 btn[x, y].Text = btn[x, y].Name;
@@ -348,71 +404,73 @@ namespace MineSweeper
             }
         }
         
-        
+        // Event handler for the grid of buttons. Differentiates between a left click or right click and performs different actions as appropriate
+        // Right clicking a square/button marks it as a potential bomb location (flag). If all the bombs have been correctly flagged (and no false flags remain) then this will win the game
+        // Left clicking a square/button uncovers the square, revealing either zero (in which case others around it will be uncovered), a number, or a bomb - which will lose the game and uncover the rest of the bombs
         void btnEvent_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right) {
-                if (((Button)sender).BackgroundImage == null && ((Button)sender).BackColor == Color.White) { 
-                    //((Button)sender).BackColor = Color.Orange;
-                    ((Button)sender).BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "flag.png");
-                    if (((Button)sender).Name == "Bomb")
+            if (e.Button == MouseButtons.Right) { // On right click
+                if (((Button)sender).BackgroundImage == null) { // If button not already flagged
+                    ((Button)sender).BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "flag.png"); // Ref.[2] Add flag image
+                    if (((Button)sender).Name == "Bomb") // If button hides a bomb, then it is a correct flag
                     {
                         correctFlags++;
-                    }
-                    else
+                    } else // If not then it is a wrong one (false flag)
                     {
                         wrongFlags++;
                     }
 
                 }
-                else //if(((Button)sender).BackgroundImage != null)
+                else // If button has already been flagged
                 {
-                    //((Button)sender).BackColor = Color.White;
-                    ((Button)sender).BackgroundImage = null;
-                    if (((Button)sender).Name == "Bomb")
+                    ((Button)sender).BackgroundImage = null; // Remove flag image
+                    if (((Button)sender).Name == "Bomb") // If button is a bomb, then it was a correct flag
                     {
                         correctFlags--;
-                    }
-                    else
+                    } else // If it wasn't, then it was a false flag
                     {
-                        wrongFlags--;
+                        if (wrongFlags > 0)
+                        {
+                            wrongFlags--;
+                        }
                     }
                 }
             }
-            else 
+            else // On left click
             {
-                if (((Button)sender).Name == "Bomb")
+                if (((Button)sender).Name == "Bomb") // If button was a bomb
                 {
-                    ((Button)sender).BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "bomb.png");
-                    ((Button)sender).BackColor = Color.Red;    // Change colour
-                    for (int x = 0; x < btn.GetLength(0); x++)         // Loop for x
+                    // Display bomb clip art and change colour
+                    ((Button)sender).BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "bomb.png"); // Ref.[1]
+                    ((Button)sender).BackColor = Color.Red;
+
+                    // Traverse grid and uncover the other bombs
+                    for (int x = 0; x < btn.GetLength(0); x++)
                     {
-                        for (int y = 0; y < btn.GetLength(1); y++)     // Loop for y
+                        for (int y = 0; y < btn.GetLength(1); y++)
                         {
                             if(btn[x,y].Name == "Bomb")
                             {
                                 btn[x, y].BackColor = Color.Red;
-                                btn[x, y].BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "bomb.png");
+                                btn[x, y].BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "bomb.png"); // Ref.[1]
                             }
                         }
                     }
-                    SoundPlayer sl = new SoundPlayer(AppDomain.CurrentDomain.BaseDirectory + "\\Explosion.wav");
-                    sl.Play();
-                    timer1.Stop();
-                    MessageBox.Show("Game Over!" + Environment.NewLine + "You survived for " + Convert.ToString(gameTime) + " seconds", "Game Over!");
-
+                    clipLose.Play(); // Play losing sound effect
+                    timer1.Stop(); // Stop timer
+                    MessageBox.Show("Game Over!" + Environment.NewLine + "You survived for " + Convert.ToString(gameTime) + " seconds", "Game Over!"); // Tell user they've lost
+                    
+                    // Clear the form and reset the game
                     Controls.Clear();
                     runGame();
-
                 }
-                else if (((Button)sender).Name == "0")
+                else if (((Button)sender).Name == "0") // If button was a zero, then determine it's coordinates and uncover surrounding zeros
                 {
-                    int x = ((Button)sender).Left / 35;
+                    int x = (((Button)sender).Left - 255) / 35;
                     int y = (((Button)sender).Top - 25) / 35;
                     uncoverZero(x, y, 0);
-                    //Console.WriteLine("Missed!");
                 }
-                else
+                else // Otherwise, uncover the button, turn it green and display its number
                 {
                     ((Button)sender).BackColor = Color.Green;
                     ((Button)sender).Text = ((Button)sender).Name;
@@ -420,16 +478,106 @@ namespace MineSweeper
                 }
             }
 
-            if (correctFlags == bombs && wrongFlags == 0)
+            if (correctFlags == bombs && wrongFlags == 0) // If the user has correctly flagged all the bombs, and made no false flags, then the game is won
             {
-                sw.Play();
-                timer1.Stop();
-                MessageBox.Show("You won!" + Environment.NewLine + "You found all the bombs in " + Convert.ToString(gameTime) + " seconds!", "Winner!");
+                timer1.Stop(); // Stop timer
+                clipWin.Play(); // Play victory music
+                DialogResult gameWon = MessageBox.Show("You won!" + Environment.NewLine + "You found all the bombs in " + Convert.ToString(gameTime) + " seconds!" + Environment.NewLine + "Do you want to add your score to the leaderboard?", "Winner!", MessageBoxButtons.YesNo); // Tell player and give their score, ask if they want to be added to leaderboard
+                if (gameWon == DialogResult.Yes) // If yes to leaderboard then add them
+                {
+                    addToLeaderboard();
+                }
                 
+                // Clear the form and reset the game
+                Controls.Clear();
+                runGame();
             }
         }
+
+        // Find if new score is good enough for leaderboard and add it if it is
+        private void addToLeaderboard()
+        {
+            int newPlace = 5;
+            bool foundPlace = false;
+            for (int i = 4; i >= 0; i--)
+            {
+                if (gameTime < leaderboardTimes[i])
+                {
+                    newPlace = i;
+                    foundPlace = true;
+                }
+            }
+            if (foundPlace == false || newPlace == 5)
+            {
+                MessageBox.Show("You were not good enough to get onto the leaderboard.", "Leaderboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                for (int i = 4; i > newPlace; i--)
+                {
+                    leaderboardNames[i] = leaderboardNames[i - 1];
+                    leaderboardTimes[i] = leaderboardTimes[i - 1];
+                }
+                string difficulty;
+                if (size == 10)
+                {
+                    difficulty = "(Easy)";
+                }
+                else if (size == 15)
+                {
+                    difficulty = "(Medium)";
+                }
+                else
+                {
+                    difficulty = "(Hard)";
+                }
+                string playerName = Microsoft.VisualBasic.Interaction.InputBox("Enter name for leaderboard", "Leaderboard", "NoName");
+                leaderboardNames[newPlace] = playerName + " " + difficulty;
+                leaderboardTimes[newPlace] = gameTime;
+                saveLeaderboard();
+                updateLeaderboard();
+            }
+
+        }
+
+        private void updateLeaderboard()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                string lblTxt = String.Format(@"{0}. {1} - {2}secs", Convert.ToString(i + 1), leaderboardNames[i], Convert.ToString(leaderboardTimes[i]));
+                leaderboardPlaces[i].Text = lblTxt;
+            }
+        }
+
+        private void loadLeaderboard()
+        {
+            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory + "Leaderboard.txt");
+            StreamReader openLeaderboard = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "Leaderboard.txt");
+            string read = null;
+            int i = 0;
+            while ((read = openLeaderboard.ReadLine()) != null)
+            {
+                string[] splitLine = read.Split('-');
+                leaderboardNames[i] = splitLine[0];
+                leaderboardTimes[i] = Convert.ToInt32(splitLine[1]);
+                i++;
+            }
+            openLeaderboard.Close();
+        }
+
+        private void saveLeaderboard()
+        {
+            StreamWriter saveLeaderboard = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "Leaderboard.txt");
+            for (int i = 0; i < 5; i++)
+            {
+                saveLeaderboard.WriteLine(leaderboardNames[i] + "-" + leaderboardTimes[i]);
+            }
+            saveLeaderboard.Close();
+        }
+
         private void MineSweeper_Load(object sender, EventArgs e)  //REQUIRED
-        { 
+        {
+                        
         }
 
         private void NewGameDropDown_Click(object sender, EventArgs e)
@@ -439,7 +587,7 @@ namespace MineSweeper
 
         private void RulesDropDown_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("This is Bomb Finder. You must left click on boxes to reveal what is underneath them. You are trying to reveal all the squares without pressing a bomb. The numbers show how many bombs are around the square. Right click to flag the bombs. Good Luck :)");
+            MessageBox.Show("This is Bomb Finder. You must left click on boxes to reveal what is underneath them. You are trying to reveal all the squares without pressing a bomb. The numbers bckgndHardow how many bombs are around the square. Right click to flag the bombs. Good Luck :)");
 
         }
 
@@ -454,7 +602,6 @@ namespace MineSweeper
             Controls.Clear();
             size = 10;
             bombs = 10;
-            se.Play();
             runGame();
         }
 
@@ -464,7 +611,6 @@ namespace MineSweeper
             Controls.Clear();
             size = 15;
             bombs = 40;
-            sm.Play();
             runGame();
         }
 
@@ -474,19 +620,15 @@ namespace MineSweeper
             Controls.Clear();
             size = 25;
             bombs = 80;
-            sh.Play();
             runGame();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             gameTime++;
-            timer.Text = "Time elapsed: " + Convert.ToString(gameTime) + " sec";
+            LblTimer.Text = "Time elapsed: " + Convert.ToString(gameTime) + " sec";
         }
+        
 
-        private void OptionsDropDown_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
