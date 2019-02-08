@@ -41,6 +41,7 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.LblTitle = new System.Windows.Forms.Label();
             this.LblTimer = new System.Windows.Forms.Label();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -62,6 +63,7 @@
             this.OptionsDropDown.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.NewGameDropDown,
             this.RulesDropDown,
+            this.aboutToolStripMenuItem,
             this.ExitDropDown});
             this.OptionsDropDown.Name = "OptionsDropDown";
             this.OptionsDropDown.Size = new System.Drawing.Size(61, 20);
@@ -141,6 +143,13 @@
             this.LblTimer.Text = "Time elasped: 0 sec";
             this.LblTimer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
             // MineSweeper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -179,6 +188,7 @@
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label LblTitle;
         private System.Windows.Forms.Label LblTimer;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
     }
 }
 

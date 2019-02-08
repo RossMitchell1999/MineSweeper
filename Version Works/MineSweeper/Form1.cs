@@ -14,7 +14,7 @@ using System.IO;
 
 /**
  * Minesweeper program ('Bomb Finder') for AC22005 Assignment 1 - C# Game
- * Written by Ross Mitchell & Patrick Turton-Smith (170012743)
+ * Written by Ross Mitchell (170008410) & Patrick Turton-Smith (170012743)
  * 
  * References:
  * [1] Bomb clip art for bomb squares & program icon from https://openclipart.org/detail/252171/black-cartoon-bomb, used under public domain
@@ -410,7 +410,7 @@ namespace MineSweeper
         void btnEvent_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right) { // On right click
-                if (((Button)sender).BackgroundImage == null) { // If button not already flagged
+                if (((Button)sender).BackgroundImage == null && ((Button)sender).BackColor == Color.White) { // If button not already flagged, or has not already been uncovered
                     ((Button)sender).BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "flag.png"); // Ref.[2] Add flag image
                     if (((Button)sender).Name == "Bomb") // If button hides a bomb, then it is a correct flag
                     {
@@ -421,17 +421,21 @@ namespace MineSweeper
                     }
 
                 }
-                else // If button has already been flagged
+                else // If button has already been flagged or has already been uncovered
                 {
-                    ((Button)sender).BackgroundImage = null; // Remove flag image
-                    if (((Button)sender).Name == "Bomb") // If button is a bomb, then it was a correct flag
+                    if (((Button)sender).BackColor != Color.Green) // If button not already uncovered, then it has already been flagged
                     {
-                        correctFlags--;
-                    } else // If it wasn't, then it was a false flag
-                    {
-                        if (wrongFlags > 0)
+                        ((Button)sender).BackgroundImage = null; // Remove flag image
+                        if (((Button)sender).Name == "Bomb") // If button is a bomb, then it was a correct flag
                         {
-                            wrongFlags--;
+                            correctFlags--;
+                        }
+                        else // If it wasn't, then it was a false flag
+                        {
+                            if (wrongFlags > 0)
+                            {
+                                wrongFlags--;
+                            }
                         }
                     }
                 }
@@ -468,10 +472,12 @@ namespace MineSweeper
                 {
                     int x = (((Button)sender).Left - 255) / 35;
                     int y = (((Button)sender).Top - 25) / 35;
+                    ((Button)sender).BackgroundImage = null;
                     uncoverZero(x, y, 0);
                 }
                 else // Otherwise, uncover the button, turn it green and display its number
                 {
+                    ((Button)sender).BackgroundImage = null;
                     ((Button)sender).BackColor = Color.Green;
                     ((Button)sender).Text = ((Button)sender).Name;
 
@@ -499,7 +505,7 @@ namespace MineSweeper
         {
             int newPlace = 5;
             bool foundPlace = false;
-            for (int i = 4; i >= 0; i--)
+            for (int i = 4; i >= 0; i--) // Traverse leaderboard times and see if the current game's time beats any of the others
             {
                 if (gameTime < leaderboardTimes[i])
                 {
@@ -507,18 +513,18 @@ namespace MineSweeper
                     foundPlace = true;
                 }
             }
-            if (foundPlace == false || newPlace == 5)
+            if (foundPlace == false || newPlace == 5) // If time does not beat any existing on the leaderboard, tell the user
             {
                 MessageBox.Show("You were not good enough to get onto the leaderboard.", "Leaderboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else
+            else // Else move the scores below the new one down a place, removing the current 5th place player at the same time
             {
-                for (int i = 4; i > newPlace; i--)
+                for (int i = 4; i > newPlace; i--) // Move scores down
                 {
                     leaderboardNames[i] = leaderboardNames[i - 1];
                     leaderboardTimes[i] = leaderboardTimes[i - 1];
                 }
-                string difficulty;
+                string difficulty; // Add suffix for what difficulty the score was achieved on
                 if (size == 10)
                 {
                     difficulty = "(Easy)";
@@ -531,15 +537,16 @@ namespace MineSweeper
                 {
                     difficulty = "(Hard)";
                 }
-                string playerName = Microsoft.VisualBasic.Interaction.InputBox("Enter name for leaderboard", "Leaderboard", "NoName");
-                leaderboardNames[newPlace] = playerName + " " + difficulty;
-                leaderboardTimes[newPlace] = gameTime;
-                saveLeaderboard();
-                updateLeaderboard();
+                string playerName = Microsoft.VisualBasic.Interaction.InputBox("Enter name for leaderboard", "Leaderboard", "NoName"); // Get players name
+                leaderboardNames[newPlace] = playerName + " " + difficulty; // Add players name & difficulty to board
+                leaderboardTimes[newPlace] = gameTime; // Add players score to same place on board
+                saveLeaderboard(); // Save leaderboard to the file
+                updateLeaderboard(); // And finally update the leaderboard displayed on the form
             }
 
         }
 
+        // Method for updating the form objects that display the leaderboard
         private void updateLeaderboard()
         {
             for (int i = 0; i < 5; i++)
@@ -549,6 +556,7 @@ namespace MineSweeper
             }
         }
 
+        // Load leaderboard from file, called when the program first starts, and places it into the arrays of names and scores that store the leaderboard when the program is running
         private void loadLeaderboard()
         {
             Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory + "Leaderboard.txt");
@@ -565,6 +573,7 @@ namespace MineSweeper
             openLeaderboard.Close();
         }
 
+        // Save current leaderboard to file, called every time the leaderboard is updated to ensure that the file is always up to date
         private void saveLeaderboard()
         {
             StreamWriter saveLeaderboard = new StreamWriter(AppDomain.CurrentDomain.BaseDirectory + "Leaderboard.txt");
@@ -585,17 +594,21 @@ namespace MineSweeper
             
         }
 
+        // Generates a message box to tell the user how to play the game
         private void RulesDropDown_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("This is Bomb Finder. You must left click on boxes to reveal what is underneath them. You are trying to reveal all the squares without pressing a bomb. The numbers bckgndHardow how many bombs are around the square. Right click to flag the bombs. Good Luck :)");
-
+            timer1.Stop();
+            MessageBox.Show("Welcome to Bomb Finder!" + Environment.NewLine + "The aim of the game is to safely flag all of the bombs on the grid without setting any off." + Environment.NewLine + "Use left click on squares to reveal what is underneath them. The numbers show how many bombs are around the square." + Environment.NewLine + "Right click to flag the bombs." + Environment.NewLine + "The game is won when you have correctly flagged all of the bombs, and you cannot win with any false flags." + Environment.NewLine + "Good Luck! :)");
+            timer1.Start();
         }
 
+        // Closes the program
         private void ExitDropDown_Click(object sender, EventArgs e)
         {
             Close();
         }
 
+        // Starts a new game with easy difficulty. Stops current game timer, clears the form, sets the grid size & number of bombs before calling runGame method to start a new game.
         private void easyGameMenuItem_Click(object sender, EventArgs e)
         {
             timer1.Stop();
@@ -605,6 +618,7 @@ namespace MineSweeper
             runGame();
         }
 
+        // Starts a new game with medium difficulty. Stops current game timer, clears the form, sets the grid size & number of bombs before calling runGame method to start a new game.
         private void mediumGameMenuItem_Click(object sender, EventArgs e)
         {
             timer1.Stop();
@@ -614,6 +628,7 @@ namespace MineSweeper
             runGame();
         }
 
+        // Starts a new game with hard difficulty. Stops current game timer, clears the form, sets the grid size & number of bombs before calling runGame method to start a new game.
         private void hardGameMenuItem_Click(object sender, EventArgs e)
         {
             timer1.Stop();
@@ -623,12 +638,19 @@ namespace MineSweeper
             runGame();
         }
 
+        // Method for handling a tick event from the game's timer, increments game timer by 1 for every tick (every 60 seconds
         private void timer1_Tick(object sender, EventArgs e)
         {
             gameTime++;
             LblTimer.Text = "Time elapsed: " + Convert.ToString(gameTime) + " sec";
         }
-        
 
+        // Method for displaying the About dialog box
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+            MessageBox.Show("Bomb Finder in C# by Ross Mitchell & Patrick Turton-Smith" + Environment.NewLine + "Latest release: 08/02/2019", "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            timer1.Start();
+        }
     }
 }
